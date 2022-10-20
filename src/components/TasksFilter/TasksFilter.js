@@ -1,8 +1,7 @@
 import './TasksFilter.css';
 
 
-function TasksFilter() {
-  
+function TasksFilter({ onFilterChange, filter }) {
   const buttons = [
     { name: 'all', label: 'All' },
     { name: 'active', label: 'Active' },
@@ -10,15 +9,17 @@ function TasksFilter() {
   ];
 
   const btnItems = buttons.map(({ name, label }) => {
-
+    let className = '';
+    if (filter === name) {
+      className = 'selected';
+    }
     return (
       <li key={name}>
-        <button>
+        <button className={className} onClick={() => onFilterChange(name)} type="button">
           {label}
         </button>
       </li>
     );
-
   });
 
   return <ul className="filters">{btnItems}</ul>;

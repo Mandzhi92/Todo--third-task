@@ -21,12 +21,28 @@ export default class App extends Component {
     };
   }
 
-  static changeState = (todoData, id, key) => {
+  static changeTodoData = (todoData, id, key) => {
    return todoData.map((el) => (el.id === id ? { ...el, [key]: !el[key] } : el));
+  }
+
+  static filter(items, filter) {
+    const match = {
+      all() {
+        return items;
+      },
+      active() {
+        return items.filter((item) => !item.done);
+      },
+      completed() {
+        return items.filter((item) => item.done);
+      },
+    };
+    return match[filter] ? match[filter]() : items;
   }
 
   state = {
     todoData: [],
+    filter: 'all',
   };
 
   componentDidMount() {
@@ -45,13 +61,13 @@ export default class App extends Component {
 
   onToggleEditing = (id) => {
     this.setState(({ todoData }) => ({
-      todoData: App.changeState(todoData, id, 'editing'),
+      todoData: App.changeTodoData(todoData, id, 'editing'),
     }));
   };
 
   onToggleDone = (id) => {
     this.setState(({ todoData }) => ({
-      todoData: App.changeState(todoData, id, 'done'),
+      todoData: App.changeTodoData(todoData, id, 'done'),
     }));
   };
 
@@ -61,23 +77,42 @@ export default class App extends Component {
     }));
   };
 
+  addNewTask = (label) => {
+    const newItem = App.createForTodoList(label);
+    this.setState(({ todoData }) => ({ todoData: [newItem, ...todoData] }));
+  };
   
 
+  onFilterChange = (filter) => {
+    this.setState(() => ({ filter }));
+  };
+
+  onClearCompleted = () => {
+    this.setState(({ todoData }) => ({ todoData: todoData.filter((item) => !item.done) }));
+  };
+
   render() {
-    const { todoData } = this.state;
+    const { todoData, filter } = this.state;
+    const visibleItems = App.filter(todoData, filter);
+    const isCompletedTasksCount = `${todoData.filter((item) => !item.done).length}`;
+
     
     return (
       <section className="todoapp">
-        <NewTaskForm />
+        <NewTaskForm addNewTask={this.addNewTask}/>
         <section className="main">
           <TaskList
-            todoData={todoData}
+            todoData={visibleItems}
             onToggleDone={this.onToggleDone}
             onToggleEditing={this.onToggleEditing}
             onDeleted={this.deleteTask}
             onFormatLabel={this.onFormatLabel}
           />
-          <Footer/>
+          <Footer
+            onFilterChange={this.onFilterChange}
+            filter={filter}
+            onClearCompleted={this.onClearCompleted}
+            isCompletedTasksCount={isCompletedTasksCount}/>
         </section>
       </section>
     );

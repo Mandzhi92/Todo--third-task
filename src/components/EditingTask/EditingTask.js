@@ -11,15 +11,15 @@ export default class EditingTask extends Component {
     this.input.focus();
   }
 
-  handleSubmit = (el) => {
-    el.preventDefault();
+  handleSubmit = (event) => {
+    event.preventDefault();
     const { value } = this.state;
     const { onFormatLabel } = this.props;
     onFormatLabel(value);
   };
 
-  handleChange = (el) => {
-    this.setState({ value: el.target.value });
+  handleChange = (e) => {
+    this.setState({ value: e.target.value });
   };
 
   blur = () => {
